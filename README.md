@@ -1,0 +1,37 @@
+# 传达室大爷:
+
+一个群组辅助机器人，目前只能帮助记录群组常用信息，~~性感火热~~，清爽、成长型bot
+
+# 安 装
+
+```
+创建bot，配置bot的图片，名字...
+获取bot的token
+git clone 
+pip install python-telegram-bot==12.0.0b1 --upgrade
+
+```
+
+# 配 置
+```
+修改config.json中的"Token"为自己的机器人token
+python3 main.py
+发送/setadmin给机器人，设置自己为管理员
+邀请机器人进群组，/setgroup 设置为工作群组
+```
+# 帮 助
+```使用/set keyword value 设置对话表，即输入一个关键词keyword，设定对应的反馈value
+如：/set amos 菜鸡，扶不起...
+使用/get keyword 获取对应的反馈
+如：/get amos
+会得到回复 菜鸡，扶不起
+同时，通过"&"字符后面跟上关键词也可以获得对应的反馈
+如：&amos 
+会得到回复 菜鸡，扶不起
+输入&all则会得到已记录的关键词列表
+...
+```
+
+# TO DO
+
+还没想好。
