@@ -69,74 +69,90 @@ print(me["first_name"] + '为您服务')
 
 # 初始化bot配置
 def init_bot(user):
-    global LANG
-    if not str(user.id) in LANG["Admin"]:
+    if LANG["Owner"] == "":
         return False
-    if str(user.id) in LANG["Admin"]:
+    if str(user.id) in LANG["Owner"]:
         return True
 
 
 # 处理命令
 def process_command(update, context):
     global data_temp
-    # 判断是否为管理员，并提示进行bot设置
+    # 判断是否为所有者，并提示进行bot设置
     command = update.message.text[1:].replace(LANG["bot_username"], '').split(' ', 2)
     if init_bot(update.message.from_user):
-        # 判断是否已设置工作群组
-        if LANG["WhiteList"] == "" and command[0] != 'setgroup':
-            update.message.reply_text(LANG["GroupNeeded"])
-        elif str(update.message.chat_id) in LANG["WhiteList"]:
-            pass
+        # 判断是否已设置工作群组，并设置
+        if LANG["Group"] == "":
+            if command[0] != 'setgroup':
+                update.message.reply_text(LANG["GroupNeeded"])
+            elif command[0] == 'setgroup':
+                LANG["Group"] = str(update.message.chat_id)
+                获取管理员列表并设置
+                p = updater.bot.get_chat_administrators(update.message.chat.id)
+                admin0 = ""
+                for i in range(0, len(p)):
+                    temp = str(p[i]["user"]["id"])
+                    admin0 = temp + "," + admin0
+                LANG["Admin"] = admin0
+                threading.Thread(target=save_config).start()
+                updater.bot.sendMessage(chat_id=update.message.chat_id, text=LANG["GroupSeted"])
     else:
-        if command[0] == 'setadmin':
-            LANG["Admin"] = str(update.message.from_user.id)
+        if command[0] == 'setowner':
+            LANG["Owner"] = str(update.message.from_user.id)
             threading.Thread(target=save_config).start()
-            updater.bot.sendMessage(chat_id=update.message.chat_id, text=LANG["Admin_set_succeed"])
+            updater.bot.sendMessage(chat_id=update.message.chat_id, text=LANG["Owner_set_succeed"])
         else:
-            update.message.reply_text(LANG["AdminNeeded"])
-    # 处理日常指令，/set = 设置信息及反馈；/get = 获取反馈; /setgroup 为设置生效群组
-    if str(update.message.chat_id) in LANG["WhiteList"]:
-        if command[0] == 'start':
-            update.message.reply_text(LANG["Start"])
-        elif command[0] == 'set':
-            key = command[1]
-            if not command[1] in data_temp:
+            update.message.reply_text(LANG["OwnerNeeded"])
+    # 处理日常指令，/set = 设置信息及反馈；/get = 获取反馈;/help获取帮助;/group_id 获取群组id
+    if str(update.message.chat_id) in LANG["Group"]:
+        if str(update.message.from_user) in LANG["Admin"]:
+            if command[0] == 'start':
+                update.message.reply_text(LANG["Start"])
+            elif command[0] == 'set' and len(command) > 2:
+                key = command[1]
+                if not command[1] in data_temp:
+                    data_temp[key] = command[2]
+                    threading.Thread(target=store).start()
+                elif command[1] in data_temp:
+                    temp = data_temp[command[1]] + '\n' + command[2]  # 更改方式，替换为字符串叠加
+                    data_temp[key] = temp
+                    threading.Thread(target=store).start()
+            elif command[0] == 'renew' and len(command) == 2:
+                key = command[1]
                 data_temp[key] = command[2]
                 threading.Thread(target=store).start()
-            elif command[1] in data_temp:
-                temp = data_temp[command[1]] + '\n' + command[2]  # 更改方式，替换为字符串叠加
-                data_temp[key] = temp
+            elif command[0] == 'del' and len(command) == 2:
+                todel = command[1]
+                data_temp.pop(todel)
                 threading.Thread(target=store).start()
-        elif command[0] == 'get':
+        elif LANG["Group"] == "" and command[0] == 'setgroup':
+            if init_bot(update.message.from_user):
+                LANG["Group"] = str(update.message.chat_id)
+                threading.Thread(target=save_config).start()
+                updater.bot.sendMessage(chat_id=update.message.chat_id, text=LANG["GroupSeted"])
+        elif command[0] == 'get' and len(command) == 2:
             if command[1] in data_temp:
                 keyword = command[1]
                 p = find(keyword)
                 update.message.reply_text(p)
             else:
                 update.message.reply_text(LANG["NotFound"])
-        elif command[0] == 'del':
-            todel = command[1]
-            data_temp.pop(todel)
-            threading.Thread(target=store).start()
+        # 获取群组id
         elif command[0] == 'get_id':
             update.message.reply_text(LANG["Get_id"] + str(update.message.chat_id))
+        # 获取使用说明
         elif command[0] == 'help':
             update.message.reply_text(LANG["Help"])
-    elif LANG["WhiteList"] == "" and command[0] == 'setgroup':
-        if init_bot(update.message.from_user):
-            LANG["WhiteList"] = str(update.message.chat_id)
-            threading.Thread(target=save_config).start()
-            updater.bot.sendMessage(chat_id=update.message.chat_id, text=LANG["GroupSeted"])
-
+    # 揪出群里的二五仔！
+    elif not str(update.message.chat_id) in LANG["Owner"] and command[0] == 'setowner':
+        updater.bot.sendMessage(chat_id=update.message.chat_id,text=LANG["OwnerExists"])
 
 # 处理特殊消息,通过'&'唤醒此功能
 def process_message(update, context):
     global data_temp
-    if str(update.message.chat_id) in LANG["WhiteList"]:
-        print(update.message.chat_id)
+    if str(update.message.chat_id) in LANG["Group"]:
         info = update.message.text[1:].split()
         if update.message.text[0] == '&':
-            print(info[0])
             if info[0] in data_temp:
                 output = find(info[0])
                 update.message.reply_text(output)
@@ -151,7 +167,10 @@ def process_message(update, context):
 
 # 添加处理器
 dp.add_handler(telegram.ext.MessageHandler(telegram.ext.Filters.command, process_command))
-dp.add_handler(telegram.ext.MessageHandler(telegram.ext.Filters.all & ~telegram.ext.Filters.command, process_message))
+dp.add_handler(telegram.ext.MessageHandler(telegram.ext.Filters.all
+                                           & ~telegram.ext.Filters.private
+                                           & ~telegram.ext.Filters.command,
+                                           process_message))
 
 updater.start_polling()
 print('开始运行')
