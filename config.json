@@ -1,0 +1,18 @@
+{
+    "Start": "我是你大爷，耳朵不好，大声点",
+    "Help": "大爷的正确提问方式：\n [&关键词] 可获取对应答案；\n 命令[/set 关键词 信息]可将信息入库;\n [/del 关键词]可以删除该关键词；\n[&all]可获取所有关键词; \n[/get 关键词]功能等同于[&关键词]",
+    "Pending": "这个大爷处理不来，等着嗷",
+    "Loading": "大爷已上线...",
+    "NotFound": "小伙纸，这玩意儿大爷没学过嗷",
+    "GetAll": "获取所有关键词",
+    "Get_id": "此对话窗口ID为：",
+    "WhiteList": "",
+    "Token": "709532596:AAH1hZvDYwM1pj0FgYwM7YnMvYYqawYfDMc",
+    "NotInList": "看你像个陌生人",
+    "Admin": "",
+    "GroupNeeded": "请设置需要大爷的群组，发送 /setgroup 即可",
+    "AdminNeeded": "请先设置管理员",
+    "bot_username": "@daogubot",
+    "Admin_set_succeed": "已将您设置为管理员",
+    "GroupSeted": "大爷入驻成功",
+}
