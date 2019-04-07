@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 # @Author  : Amos
-# @FileName: daye.py.py
+# @FileName: main.py
 # @Blog    ：https://daogu.fun
 
 import json, os
@@ -10,12 +10,10 @@ import telegram
 import threading
 import logging
 
-
 # enable logging
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-
+                    )
 
 # 加载预设置项
 CONFIG_LOCK = False
@@ -36,7 +34,7 @@ def store():
         time.sleep(0.05)
     DATA_LOCK = True
     with open('data.json', 'w', encoding='utf-8') as fw:
-        json.dump(data_temp, fw, ensure_ascii=False,indent=4)
+        json.dump(data_temp, fw, ensure_ascii=False, indent=4)
     DATA_LOCK = False
 
 
@@ -51,7 +49,7 @@ def save_config():
     CONFIG_LOCK = False
 
 
-# 从json 中查找
+# 从对话表data.json中获取信息
 def find(keyword):
     with open('data.json', 'r') as f:
         info = json.load(f)[keyword]
@@ -66,7 +64,7 @@ print(LANG["Loading"])
 
 me = updater.bot.get_me()
 LANG["bot_username"] = '@' + me.username
-print(me["first_name"]+' '+'为您服务')
+print(me["first_name"] + '为您服务')
 
 
 # 初始化bot配置
@@ -79,21 +77,23 @@ def init_bot(user):
 
 
 # 处理命令
-def process_command(update,context):
+def process_command(update, context):
     global data_temp
     # 判断是否为管理员，并提示进行bot设置
     command = update.message.text[1:].replace(LANG["bot_username"], '').split(' ', 2)
     if init_bot(update.message.from_user):
+        # 判断是否已设置工作群组
         if LANG["WhiteList"] == "" and command[0] != 'setgroup':
             update.message.reply_text(LANG["GroupNeeded"])
         elif str(update.message.chat_id) in LANG["WhiteList"]:
             pass
     else:
-        update.message.reply_text(LANG["AdminNeeded"])
         if command[0] == 'setadmin':
             LANG["Admin"] = str(update.message.from_user.id)
             threading.Thread(target=save_config).start()
             updater.bot.sendMessage(chat_id=update.message.chat_id, text=LANG["Admin_set_succeed"])
+        else:
+            update.message.reply_text(LANG["AdminNeeded"])
     # 处理日常指令，/set = 设置信息及反馈；/get = 获取反馈; /setgroup 为设置生效群组
     if str(update.message.chat_id) in LANG["WhiteList"]:
         if command[0] == 'start':
@@ -119,7 +119,7 @@ def process_command(update,context):
             data_temp.pop(todel)
             threading.Thread(target=store).start()
         elif command[0] == 'get_id':
-            update.message.reply_text(LANG["Get_id"]+str(update.message.chat_id))
+            update.message.reply_text(LANG["Get_id"] + str(update.message.chat_id))
         elif command[0] == 'help':
             update.message.reply_text(LANG["Help"])
     elif LANG["WhiteList"] == "" and command[0] == 'setgroup':
@@ -163,5 +163,3 @@ store()
 save_config()
 
 print('退出')
-
-
