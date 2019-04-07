@@ -17,15 +17,12 @@ logging.basicConfig(level=logging.INFO,
 )
 
 
-# PATH = os.path.dirname(os.path.realpath(__file__)) + '/'
-
-
 # 加载预设置项
 CONFIG_LOCK = False
 def_dir = os.path.join(os.getcwd(), 'config.json')  # 解决Windows和linux路径不一致问题
 LANG = json.loads(open(def_dir, 'rb').read())
 
-# 加载信息
+# 加载对话表
 DATA_LOCK = False
 # data_temp = json.loads(open(PATH + 'data.json', 'r').read())
 data_dir = os.path.join(os.getcwd(), 'data.json')
@@ -49,9 +46,10 @@ def save_config():
     while CONFIG_LOCK:
         time.sleep(0.05)
     CONFIG_LOCK = True
-    with open('config.json', 'w', encoding='utf-8') as fc:
-        json.dump(LANG, fc, ensure_ascii=False, indent=4)
+    with open('config.json', 'w', encoding='utf-8') as fw:
+        json.dump(LANG, fw, ensure_ascii=False, indent=4)
     CONFIG_LOCK = False
+
 
 # 从json 中查找
 def find(keyword):
@@ -61,7 +59,6 @@ def find(keyword):
         return info
 
 
-# updater = telegram.ext.Updater('709532596:AAH1hZvDYwM1pj0FgYwM7YnMvYYqawYfDMc', use_context=True)
 updater = telegram.ext.Updater(LANG["Token"], use_context=True)
 dp = updater.dispatcher
 
@@ -76,7 +73,6 @@ print(me["first_name"]+' '+'为您服务')
 def init_bot(user):
     global LANG
     if not str(user.id) in LANG["Admin"]:
-        print(user.id)
         return False
     if str(user.id) in LANG["Admin"]:
         return True
@@ -96,14 +92,15 @@ def process_command(update,context):
         update.message.reply_text(LANG["AdminNeeded"])
         if command[0] == 'setadmin':
             LANG["Admin"] = str(update.message.from_user.id)
-            updater.bot.sendMessage(chat_id=update.message.chat_id,text=LANG["Admin_set_succeed"])
+            threading.Thread(target=save_config).start()
+            updater.bot.sendMessage(chat_id=update.message.chat_id, text=LANG["Admin_set_succeed"])
     # 处理日常指令，/set = 设置信息及反馈；/get = 获取反馈; /setgroup 为设置生效群组
     if str(update.message.chat_id) in LANG["WhiteList"]:
         if command[0] == 'start':
             update.message.reply_text(LANG["Start"])
         elif command[0] == 'set':
+            key = command[1]
             if not command[1] in data_temp:
-                key = command[1]
                 data_temp[key] = command[2]
                 threading.Thread(target=store).start()
             elif command[1] in data_temp:
@@ -128,8 +125,8 @@ def process_command(update,context):
     elif LANG["WhiteList"] == "" and command[0] == 'setgroup':
         if init_bot(update.message.from_user):
             LANG["WhiteList"] = str(update.message.chat_id)
-            threading.Thread(target=save_config()).start()
-            updater.bot.sendMessage(chat_id=update.message.chat_id,text=LANG["GroupSeted"])
+            threading.Thread(target=save_config).start()
+            updater.bot.sendMessage(chat_id=update.message.chat_id, text=LANG["GroupSeted"])
 
 
 # 处理特殊消息,通过'&'唤醒此功能
@@ -145,7 +142,7 @@ def process_message(update, context):
                 update.message.reply_text(output)
             if info[0] == 'all':
                 print(LANG["GetAll"])
-                output=[]
+                output = []
                 for key in data_temp.keys():
                     output.append(key)
                 rs = json.dumps(output, ensure_ascii=False)

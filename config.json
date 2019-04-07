@@ -7,12 +7,12 @@
     "GetAll": "获取所有关键词",
     "Get_id": "此对话窗口ID为：",
     "WhiteList": "",
-    "Token": "709532596:AAH1hZvDYwM1pj0FgYwM7YnMvYYqawYfDMc",
+    "Token": "",
     "NotInList": "看你像个陌生人",
     "Admin": "",
     "GroupNeeded": "请设置需要大爷的群组，发送 /setgroup 即可",
     "AdminNeeded": "请先设置管理员",
-    "bot_username": "@daogubot",
+    "bot_username": "",
     "Admin_set_succeed": "已将您设置为管理员",
-    "GroupSeted": "大爷入驻成功",
+    "GroupSeted": "大爷入驻成功"
 }
