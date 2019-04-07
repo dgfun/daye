@@ -11,6 +11,7 @@
     "GetAll": "获取所有关键词",
     "Get_id": "此对话窗口ID为：",
     "NotInList": "看你像个陌生人",
+    "CommandError": "暗号不对嗷",
     "GroupNeeded": "请设置需要大爷的群组，命令为/setgroup",
     "OwnerNeeded": "请先设置所有者",
     "bot_username": "",
