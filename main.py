@@ -167,6 +167,23 @@ def process_message(update, context):
                 update.message.reply_text(rs)
 
 
+# 不通过特殊命令唤醒
+# def process_message(update, context):
+#     global data_temp
+#     if str(update.message.chat_id) in LANG["Group"]:
+#         info = update.message.text
+#         if info in data_temp.keys:
+#             output = find(info)
+#             update.message.reply_text(output)
+#         if info == 'all':
+#             print(LANG["GetAll"])
+#             output = []
+#             for key in data_temp.keys():
+#                 output.append(key)
+#             rs = json.dumps(output, ensure_ascii=False)
+#             update.message.reply_text(rs)
+
+
 # 添加处理器
 dp.add_handler(telegram.ext.MessageHandler(telegram.ext.Filters.command, process_command))
 dp.add_handler(telegram.ext.MessageHandler(telegram.ext.Filters.text
