@@ -149,6 +149,14 @@ def process_command(update, context):
         elif command[0] == 'help':
             update.message.reply_text(LANG["Help"])
 
+    # 获取个人id及@username
+    if command[0] == 'get_me':
+        myinfo = update.message.from_user
+        print(myinfo)
+        id = myinfo["id"]
+        username = myinfo["username"]
+        temp = "id:" +str(id) +'\n' + "username:" + "@" + username
+        update.message.reply_text(temp)
 
 # 处理特殊消息,通过'&'唤醒此功能
 def process_message(update, context):
