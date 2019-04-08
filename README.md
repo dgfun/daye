@@ -33,6 +33,11 @@ python3 main.py
 如：&amos 
 会得到回复 菜鸡，扶不起
 输入&all则会得到已记录的关键词列表
+或者启用关键词匹配功能，直接使用关键词即可获取反馈
+
+amos
+菜鸡，扶不起
+
 群组内发送/get_id 可获取群组id
 /help 获取帮助
 ...
@@ -43,3 +48,5 @@ python3 main.py
 MARKDOWN消息
 
 优化链接显示方式
+
+改为mongodb存储
