@@ -9,6 +9,7 @@ import telegram.ext
 import telegram
 import threading
 import logging
+import time,datetime
 
 # enable logging
 logging.basicConfig(level=logging.INFO,
@@ -175,7 +176,7 @@ def process_message(update, context):
 #         if info[0] in data_temp and len(info) == 1:
 #             output = find(info[0])
 #             update.message.reply_text(output)
-#         if info == 'all':
+#         if info[0] == 'all' and len(info) == 1:
 #             print(LANG["GetAll"])
 #             output = []
 #             for key in data_temp.keys():
