@@ -171,9 +171,9 @@ def process_message(update, context):
 # def process_message(update, context):
 #     global data_temp
 #     if str(update.message.chat_id) in LANG["Group"]:
-#         info = update.message.text
-#         if info in data_temp.keys:
-#             output = find(info)
+#         info = update.message.text.split()
+#         if info[0] in data_temp and len(info) == 1:
+#             output = find(info[0])
 #             update.message.reply_text(output)
 #         if info == 'all':
 #             print(LANG["GetAll"])
