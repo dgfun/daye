@@ -28,6 +28,8 @@ DATA_LOCK = False
 data_dir = os.path.join(os.getcwd(), 'data.json')
 data_temp = json.loads(open(data_dir, 'r').read())
 
+markdown = telegram.ParseMode.MARKDOWN
+
 
 # 将信息存入json 中
 def store():
@@ -80,7 +82,7 @@ def init_bot(user):
 def process_command(update, context):
     global data_temp
     # 判断是否为所有者，并提示进行bot设置
-    command = update.message.text[1:].replace(LANG["bot_username"], '').split(' ', 2)
+    command = update.message.text_markdown[1:].replace(LANG["bot_username"], '').replace('\\','').split(' ', 2)
     if init_bot(update.message.from_user):
         # 判断是否已设置工作群组，并设置
         if LANG["Group"] == "":
@@ -171,7 +173,7 @@ def process_message(update, context):
         info = update.message.text.split()
         if info[0] in data_temp and len(info) == 1:
             output = find(info[0])
-            update.message.reply_text(output)
+            update.message.reply_text(output, parse_mode=markdown )
         if info[0] == 'all' and len(info) == 1:
             print(LANG["GetAll"])
             output = []
