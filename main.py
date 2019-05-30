@@ -1,8 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 # @Author  : Amos
 # @FileName: main.py
 # @Blog    ：https://daogu.fun
+
 
 import json, os
 import telegram.ext
@@ -106,7 +107,7 @@ def process_command(update, context):
             elif not str(update.message.from_user.id) in LANG["Owner"]:
                 # 揪出群里的二五仔！
                 updater.bot.sendMessage(chat_id=update.message.chat_id, text=LANG["OwnerExists"])
-        else:
+        elif LANG["Owner"] == "":
             update.message.reply_text(LANG["OwnerNeeded"])
     # 处理日常指令，/set = 设置信息及反馈；/get = 获取反馈;/help获取帮助;/group_id 获取群组id
     if str(update.message.chat_id) in LANG["Group"]:
@@ -159,38 +160,38 @@ def process_command(update, context):
         update.message.reply_text(temp)
 
 # 处理特殊消息,通过'&'唤醒此功能
-def process_message(update, context):
-    global data_temp
-    if str(update.message.chat_id) in LANG["Group"]:
-        info = update.message.text[1:].split()
-        if update.message.text[0] == '&':
-            if info[0] in data_temp:
-                output = find(info[0])
-                update.message.reply_text(output)
-            if info[0] == 'all':
-                print(LANG["GetAll"])
-                output = []
-                for key in data_temp.keys():
-                    output.append(key)
-                rs = json.dumps(output, ensure_ascii=False)
-                update.message.reply_text(rs)
-
-
-# 不通过特殊命令唤醒
 # def process_message(update, context):
 #     global data_temp
 #     if str(update.message.chat_id) in LANG["Group"]:
-#         info = update.message.text.split()
-#         if info[0] in data_temp and len(info) == 1:
-#             output = find(info[0])
-#             update.message.reply_text(output)
-#         if info[0] == 'all' and len(info) == 1:
-#             print(LANG["GetAll"])
-#             output = []
-#             for key in data_temp.keys():
-#                 output.append(key)
-#             rs = json.dumps(output, ensure_ascii=False)
-#             update.message.reply_text(rs)
+#         info = update.message.text[1:].split()
+#         if update.message.text[0] == '&':
+#             if info[0] in data_temp:
+#                 output = find(info[0])
+#                 update.message.reply_text(output)
+#             if info[0] == 'all':
+#                 print(LANG["GetAll"])
+#                 output = []
+#                 for key in data_temp.keys():
+#                     output.append(key)
+#                 rs = json.dumps(output, ensure_ascii=False)
+#                 update.message.reply_text(rs)
+
+
+# 不通过特殊命令唤醒
+def process_message(update, context):
+    global data_temp
+    if str(update.message.chat_id) in LANG["Group"]:
+        info = update.message.text.split()
+        if info[0] in data_temp and len(info) == 1:
+            output = find(info[0])
+            update.message.reply_text(output)
+        if info[0] == 'all' and len(info) == 1:
+            print(LANG["GetAll"])
+            output = []
+            for key in data_temp.keys():
+                output.append(key)
+            rs = json.dumps(output, ensure_ascii=False)
+            update.message.reply_text(rs)
 
 
 # 添加处理器
@@ -201,7 +202,6 @@ dp.add_handler(telegram.ext.MessageHandler(telegram.ext.Filters.text
                                            process_message))
 
 
-#
 
 updater.start_polling()
 print('开始运行')
