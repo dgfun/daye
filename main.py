@@ -179,7 +179,7 @@ def process_message(update, context):
             output = []
             for key,value in data_temp.items():
                 output.append(f'{key}--{value[:5]}...')
-            rs = '\n'.join(output).join(['\n', '\n'])
+            rs = '\n'.join(output).join(['已记录信息:\n', '\n'])
             update.message.reply_text(rs)
 
 
