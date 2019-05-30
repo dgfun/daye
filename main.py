@@ -159,6 +159,11 @@ def process_command(update, context):
         temp = "id:" +str(id) +'\n' + "username:" + "@" + username
         update.message.reply_text(temp)
 
+    # 自动删除命令
+    if update.message.text[0] == '/':
+        time.sleep(5.0)
+        context.bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id)
+
 # 处理特殊消息,通过'&'唤醒此功能
 # def process_message(update, context):
 #     global data_temp
