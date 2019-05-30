@@ -10,7 +10,7 @@ import telegram.ext
 import telegram
 import threading
 import logging
-import time,datetime
+import time
 
 # enable logging
 logging.basicConfig(level=logging.INFO,
@@ -55,7 +55,6 @@ def save_config():
 def find(keyword):
     with open('data.json', 'r') as f:
         info = json.load(f)[keyword]
-        # rs = json.dumps(info, ensure_ascii=False)  # 解决输出中文问题，又注释掉，是因为已存在的key机制更改
         return info
 
 
@@ -164,23 +163,6 @@ def process_command(update, context):
         time.sleep(5.0)
         context.bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id)
 
-# 处理特殊消息,通过'&'唤醒此功能
-# def process_message(update, context):
-#     global data_temp
-#     if str(update.message.chat_id) in LANG["Group"]:
-#         info = update.message.text[1:].split()
-#         if update.message.text[0] == '&':
-#             if info[0] in data_temp:
-#                 output = find(info[0])
-#                 update.message.reply_text(output)
-#             if info[0] == 'all':
-#                 print(LANG["GetAll"])
-#                 output = []
-#                 for key in data_temp.keys():
-#                     output.append(key)
-#                 rs = json.dumps(output, ensure_ascii=False)
-#                 update.message.reply_text(rs)
-
 
 # 不通过特殊命令唤醒
 def process_message(update, context):
@@ -193,9 +175,9 @@ def process_message(update, context):
         if info[0] == 'all' and len(info) == 1:
             print(LANG["GetAll"])
             output = []
-            for key in data_temp.keys():
-                output.append(key)
-            rs = json.dumps(output, ensure_ascii=False)
+            for key,value in data_temp.items():
+                output.append(f'{key}--{value[:5]}...')
+            rs = '\n'.join(output).join(['\n', '\n'])
             update.message.reply_text(rs)
 
 
@@ -205,7 +187,6 @@ dp.add_handler(telegram.ext.MessageHandler(telegram.ext.Filters.text
                                            & ~telegram.ext.Filters.private
                                            & ~telegram.ext.Filters.command,
                                            process_message))
-
 
 
 updater.start_polling()
