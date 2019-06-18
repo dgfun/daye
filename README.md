@@ -5,7 +5,7 @@
 已支持发送markdown
 
 # CHANGLOG
-2019年6月18日，新增MongDb版。支持新人进群验证，支持回复封禁用户， 支持回复设置关键词信息。详细见底部Mongo版帮助
+2019年6月18日，新增MongDb版。支持新人进群验证，支持回复封禁用户， 支持回复设置关键词信息。详细见底部[Mongo版帮助](https://github.com/dgfun/daye/blob/master/README.md#mongodb%E7%89%88%E4%BD%BF%E7%94%A8%E5%B8%AE%E5%8A%A9)
 
 # 安 装
 
