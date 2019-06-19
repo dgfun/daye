@@ -99,18 +99,15 @@ def info(keyword, value, **kwargs):
 
 # 添加触媒
 def set(update, context):
-    text = update.message.text_markdown.replace('\\','').split(' ', 2)
-    print(text)
+    text = update.message.text_markdown.replace('\\', '').split(' ', 2)
     key = str(update.message.from_user.id)
     if db[group_username(update)].find_one({
             key: {"$exists": True}}) is None:
         update.message.reply_text("只允许管理员进行此等骚操作")
         return
     elif len(text) == 3:
-        print("准备入库")
         keyword = context.args[0]
         value = [text[2]]
-        print(value)
         # value = args[1:]
         msg = info(keyword, value)
         deposit(group_username(update), msg)
@@ -126,37 +123,49 @@ def set(update, context):
 
 def process_msg(update, context):
     keyboard = [[KeyboardButton('新人解禁')]]
-    context.chat_data["new_member"] = []
     if update.message.new_chat_members:
         new_user = "\n"
         for each in update.message.new_chat_members:
             if each["is_bot"]:
-                update.message.reply_text(f"有新机器人@{each.username} 入群")
+                update.message.reply_text(f"有新机器人 @{each.username} 入群")
             else:
                 new_user += "@"+each.username + ' '
                 context.chat_data["new_member"].append(each.id)
         reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=True, selective=True)
-        text = new_user + "\n" + "欢迎入群,新人入群请先解禁。"
+        text = new_user + "\n" + "欢迎入群,新人入群请先打招呼。\n 方式：点击按钮或者发送消息:大佬们好"
         if new_user != "\n":
             context.bot.send_message(chat_id=update.message.chat.id, text=text, reply_markup=reply_markup)
         time.sleep(3.0)
         context.bot.delete_message(chat_id=update.message.chat.id, message_id=update.message.message_id)
-    elif update.message.from_user.id in context.chat_data["new_member"]:
-        if update.message.text != "新人解禁":
-            context.bot.delete_message(chat_id=update.message.chat.id, message_id=update.message.message_id)
-        else:
-            context.chat_data["new_member"].remove(update.message.from_user.id)
-            update.message.reply_text("新人解禁成功，请开始本群之旅", reply_markup=ReplyKeyboardRemove())
-            pass
+        pass
     elif update.message.left_chat_member:
         context.bot.delete_message(chat_id=update.message.chat.id, message_id=update.message.message_id)
         pass
-    elif update.message.text:
+    elif update.message.from_user.id in context.chat_data["new_member"]:
+        if update.message.text != "大佬们好":
+            context.bot.delete_message(chat_id=update.message.chat.id, message_id=update.message.message_id)
+        else:
+            context.chat_data["new_member"].remove(update.message.from_user.id)
+            update.message.reply_text("新人认证成功", reply_markup=ReplyKeyboardRemove())
+            pass
+    elif update.message.text and update.message.from_user.id not in context.chat_data["new_member"]:
         condition = update.message.text
         answer = search(group_username(update), False, condition)
         if answer is not None:
             msg = "\n".join(answer["value"])
-            update.message.reply_text(msg, disable_web_preview=True, parse_mode=ParseMode.MARKDOWN)
+            update.message.reply_text(msg, disable_web_preview=True,
+                                      parse_mode=ParseMode.MARKDOWN, reply_markup=ReplyKeyboardRemove())
+        elif condition == "all":
+            text = []
+            all_keyboard = list()
+            for each in db[group_username(update)].find({"keyword": {"$exists": True}}):
+                text.append(each["keyword"])
+                keyword_keyboard = [KeyboardButton(each["keyword"])]
+                all_keyboard.append(keyword_keyboard)
+            reply_markup = ReplyKeyboardMarkup(all_keyboard, resize_keyboard=True,
+                                               one_time_keyboard=True, selective=True)
+            context.bot.send_message(chat_id=update.message.chat.id, text="请选择：",
+                                     reply_markup=reply_markup, reply_to_message_id=update.message.message_id)
     else:
         pass
 
@@ -169,6 +178,7 @@ def start(update, context):
     else:
         admin = context.bot.get_chat_administrators(chat_id=msg.chat_id)
         admin_list = {}
+        context.chat_data["new_member"] = []
         for each in admin:
             profile = {"user": {"id": each.user.id, "username": each.user.name,
                                 "can_restrict_members": each["can_restrict_members"],
@@ -176,6 +186,10 @@ def start(update, context):
             admin_list[str(each.user.id)] = profile
         db[group_username(update)].insert_one(admin_list)
         update.message.reply_text("加载完成...")
+
+
+def error(update, context):
+    logging.warning('Update "%s" caused error "%s"', update, context.error)
 
 
 def main():
@@ -196,6 +210,8 @@ def main():
     dp.add_handler(telegram.ext.CommandHandler("ban", ban, filters=~telegram.ext.Filters.private))
 
     dp.add_handler(telegram.ext.MessageHandler(telegram.ext.Filters.all, process_msg))
+
+    dp.add_error_handler(error)
 
     updater.start_polling()
 
